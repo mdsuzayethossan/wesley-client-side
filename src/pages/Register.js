@@ -15,27 +15,35 @@ const Register = () => {
       email: form.email.value,
       password: form.password.value,
       cpassword: form.cpassword.value,
+      submit: form.submit,
     };
     if (!(userInfo.cpassword === userInfo.password)) {
       setCpasswordErr("Confirm password must be equal to password");
       return;
     }
     userInfo.submit.disabled = true;
-    createUser(userInfo.email, userInfo.password).then((result) => {
-      toast.success("User Created Successfully.");
-      const userName = {
-        displayName: userInfo.name,
-      };
-      updateUser(userName)
-        .then((result) => {
-          form.reset();
-          navigate("/");
-        })
-        .catch((err) => {
-          userInfo.submit.disabled = false;
-          setLoading(false);
-        });
-    });
+    createUser(userInfo.email, userInfo.password)
+      .then((result) => {
+        toast.success("User Created Successfully.");
+        const userName = {
+          displayName: userInfo.name,
+        };
+        updateUser(userName)
+          .then((result) => {
+            form.reset();
+            navigate("/");
+          })
+          .catch((err) => {
+            userInfo.submit.disabled = false;
+            setLoading(false);
+            toast.error(err.message);
+          });
+      })
+      .catch((err) => {
+        userInfo.submit.disabled = false;
+        setLoading(false);
+        toast.error(err.message);
+      });
   };
   return (
     <form onSubmit={handleRegister}>
@@ -60,7 +68,7 @@ const Register = () => {
         <input type="password" required name="cpassword" />
       </label>
       <br />
-      <input type="submit" value="Submit" />
+      <input type="submit" name="submit" value="Submit" />
     </form>
   );
 };
