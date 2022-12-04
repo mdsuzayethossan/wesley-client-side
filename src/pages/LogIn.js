@@ -27,7 +27,7 @@ const LogIn = () => {
       });
   };
   return (
-    <div>
+    <div style={{ width: "500px", margin: "0 auto" }}>
       <form onSubmit={handleLogin}>
         {LoginError && <h3 style={{ color: "red" }}>{LoginError}</h3>}
 
@@ -44,6 +44,22 @@ const LogIn = () => {
         <input type="submit" name="submit" value="Submit" />
       </form>
       <Link to="/forgot-password">Forgot Password</Link>
+      <br />
+      <Link to="/">
+        <button
+          style={{
+            backgroundColor: "green",
+            color: "white",
+            textDecoration: "none",
+            padding: "6px 10px",
+            borderRadius: "25px",
+            marginTop: "20px",
+            border: "none",
+          }}
+        >
+          Back to Home
+        </button>
+      </Link>
     </div>
   );
 };

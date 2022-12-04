@@ -1,9 +1,10 @@
-import React, { useContext } from "react";
-import toast from "react-hot-toast";
+import React, { useContext, useState } from "react";
 import { AuthContext } from "../contexts/AuthProvider";
 
 const ForgotPassword = () => {
   const { forgotEmail } = useContext(AuthContext);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
   const handleForgotPassword = (event) => {
     event.preventDefault();
     const form = event.target;
@@ -14,20 +15,22 @@ const ForgotPassword = () => {
     userInfo.submit.disabled = true;
     forgotEmail(userInfo.email)
       .then(() => {
-        toast.success("Password reset email sent!");
+        setSuccess("Password reset email sent!");
       })
       .catch((error) => {
         const errorMessage = error.message;
         userInfo.submit.disabled = false;
-        toast.error(errorMessage);
+        setError(errorMessage);
       });
   };
   return (
     <div>
+      {error && <h3 style={{ color: "red" }}>{error}</h3>}
+      {success && <h3 style={{ color: "green" }}>{success}</h3>}
       <form onSubmit={handleForgotPassword}>
         <label>
           Email:
-          <input type="email" name="email" />
+          <input type="email" required name="email" />
         </label>
         <br />
         <input type="submit" name="submit" value="Submit" />

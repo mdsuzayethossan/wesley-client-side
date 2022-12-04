@@ -1,10 +1,11 @@
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import React, { useState, useEffect } from "react";
-import toast from "react-hot-toast";
-import Loading from "../../../components/Loading";
+import React, { useState, useEffect, useContext } from "react";
+import Loading from "../../components/Loading";
+import { AuthContext } from "../../contexts/AuthProvider";
 
-const CheckoutForm = ({ OrderInfo }) => {
-  const { _id, price, userName, email, productId } = OrderInfo;
+const CheckoutForm = ({ product }) => {
+  const { user } = useContext(AuthContext);
+  const { price, id } = product;
   const [cardErr, setCardErr] = useState("");
   const [success, setSuccess] = useState("");
   const [transactionId, setTransactionId] = useState("");
@@ -18,7 +19,6 @@ const CheckoutForm = ({ OrderInfo }) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        authorization: `bearer ${localStorage.getItem("accessToken")}`,
       },
       body: JSON.stringify({ price }),
     })
@@ -55,8 +55,8 @@ const CheckoutForm = ({ OrderInfo }) => {
         payment_method: {
           card: card,
           billing_details: {
-            name: userName,
-            email: email,
+            name: user.displayName,
+            email: user?.email,
           },
         },
       });
@@ -65,36 +65,37 @@ const CheckoutForm = ({ OrderInfo }) => {
       setLoading(false);
       return;
     }
-    if (paymentIntent.status === "succeeded") {
-      const payment = {
-        orderId: _id,
-        productId,
-        email,
-        price,
-        transactionId: paymentIntent.id,
-      };
-      fetch(`${process.env.REACT_APP_domain}/payment`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `bearer ${localStorage.getItem("accessToken")}`,
-        },
-        body: JSON.stringify(payment),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.insertedId) {
-            toast.success("Congtats! your payment completed successfully");
-            setLoading(false);
-            setSuccess("Congtats! your payment completed successfully");
-            setTransactionId(paymentIntent.id);
-          }
-        });
-    }
+    console.log(paymentIntent);
+    setSuccess("Congtats! your payment completed successfully");
+    setTransactionId(paymentIntent.id);
+    setLoading(false);
+    // if (paymentIntent.status === "succeeded") {
+    //   const payment = {
+    //     productId: id,
+    //     email: user?.email,
+    //     price,
+    //     transactionId: paymentIntent.id,
+    //   };
+    //   fetch(`${process.env.REACT_APP_domain}/payment`, {
+    //     method: "POST",
+    //     body: JSON.stringify(payment),
+    //   })
+    //     .then((res) => res.json())
+    //     .then((data) => {
+    //       if (data.insertedId) {
+    //         setLoading(false);
+    //         setSuccess("Congtats! your payment completed successfully");
+    //         setTransactionId(paymentIntent.id);
+    //       }
+    //     });
+    // }
   };
   return (
     <>
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}
+        style={{ width: "450px", margin: "0 auto" }}
+      >
         <CardElement
           options={{
             style: {
@@ -121,52 +122,17 @@ const CheckoutForm = ({ OrderInfo }) => {
           </button>
         )}
       </form>
-      {cardErr && (
-        <div className="alert alert-error shadow-lg mt-5">
-          <div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="stroke-current flex-shrink-0 h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span>{cardErr}</span>
-          </div>
-        </div>
-      )}
-      {success && (
-        <>
-          <div className="alert alert-success shadow-lg mt-5">
-            <div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="stroke-current flex-shrink-0 h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <span>{success}</span>
-            </div>
-          </div>
-          <p>
-            Your transactionId{" "}
-            <span className="font-bold">{transactionId}</span>
-          </p>
-        </>
-      )}
+      <div style={{ width: "650px", margin: "0 auto", textAlign: "center" }}>
+        {" "}
+        {cardErr && <h3 style={{ color: "red" }}>{cardErr}</h3>}
+        {success && (
+          <h3 style={{ color: "green" }}>
+            {success}
+            <br />
+            <span>setTransactionId: {transactionId}</span>
+          </h3>
+        )}
+      </div>
     </>
   );
 };

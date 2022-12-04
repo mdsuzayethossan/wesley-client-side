@@ -3,7 +3,9 @@ import Main from "../Layout/Main";
 import ForgotPassword from "../pages/ForgotPassword";
 import Home from "../pages/Home/Home";
 import LogIn from "../pages/LogIn";
+import Payment from "../pages/Payment/Payment";
 import Register from "../pages/Register";
+import PrivateRoute from "./PrivateRoute";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +27,14 @@ const router = createBrowserRouter([
       {
         path: "/forgot-password",
         element: <ForgotPassword></ForgotPassword>,
+      },
+      {
+        path: "/payment",
+        element: (
+          <PrivateRoute>
+            <Payment></Payment>
+          </PrivateRoute>
+        ),
       },
     ],
   },
